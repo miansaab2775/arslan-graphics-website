@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Control & History | ARSLAN GRAPHICS</title>
+<style>
+:root{--bg:#080808;--panel:#111;--gold:#e7bd58;--muted:#aaa;--white:#f8f6f0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font-family:Inter,sans-serif;padding:30px 20px}
+.wrap{max-width:1000px;margin:0 auto}
+h1{color:var(--gold);margin-bottom:5px}
+p{color:var(--muted);margin-top:0}
+.card{background:#111;border:1px solid #332a16;border-radius:10px;padding:20px;margin-bottom:20px}
+.login-box{max-width:400px;margin:100px auto;text-align:center}
+input{width:100%;background:#080808;border:1px solid #39332a;color:#fff;border-radius:5px;padding:12px;outline:none;margin-bottom:15px}
+button{background:linear-gradient(120deg,#ffe69a,#c38a20);color:#111;border:0;padding:12px 20px;border-radius:5px;font-weight:bold;cursor:pointer;width:100%}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #222;font-size:0.9rem}
+th{color:var(--gold)}
+.badge{background:#221b0e;color:var(--gold);padding:4px 8px;border-radius:4px;font-size:0.75rem}
+.actions-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.btn-danger{background:#5a1c1c;color:#fff;width:auto;padding:8px 14px;font-size:0.8rem}
+.hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-box card">
+    <h2>Admin Access</h2>
+    <p>Enter your password to view control panel & history.</p>
+    <input type="password" id="adminPass" placeholder="Enter password (default: arslan123)">
+    <button onclick="login()">Login</button>
+    <p id="loginError" style="color:#ff8888;font-size:0.8rem;margin-top:10px;display:none;">Incorrect password</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div id="dashboard" class="hidden">
+    <div class="actions-bar">
+      <div>
+        <h1>Order Control & History</h1>
+        <p>Manage all customer submissions and data.</p>
+      </div>
+      <button class="btn-danger" onclick="clearHistory()">Clear All History</button>
+    </div>
+
+    <div class="card">
+      <h3>Customer Orders History</h3>
+      <div id="ordersContainer">
+        <p>No orders recorded yet.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function login() {
+  const pass = document.getElementById('adminPass').value;
+  // You can change 'arslan123' to any secure password you prefer
+  if(pass === 'arslan123') {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    loadOrders();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function loadOrders() {
+  const orders = JSON.parse(localStorage.getItem('arslan_graphics_orders') || '[]');
+  const container = document.getElementById('ordersContainer');
+  
+  if(orders.length === 0) {
+    container.innerHTML = '<p>No customer orders found in history yet.</p>';
+    return;
+  }
+
+  let html = `<table>
+    <thead>
+      <tr>
+        <th>ID / Date</th>
+        <th>Client</th>
+        <th>Service & Budget</th>
+        <th>Details</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  orders.forEach(o => {
+    html += `<tr>
+      <td><strong>${o.id}</strong><br><small style="color:#888">${o.date}</small></td>
+      <td><strong>${o.name}</strong><br><a href="mailto:${o.email}" style="color:var(--gold);font-size:0.8rem;">${o.email}</a></td>
+      <td><span class="badge">${o.service}</span><br><small style="color:#aaa">Budget: ${o.budget}</small></td>
+      <td>${o.details}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function clearHistory() {
+  if(confirm("Are you sure you want to clear all order history?")) {
+    localStorage.removeItem('arslan_graphics_orders');
+    loadOrders();
+  }
+}
+</script>
+
+</body>
+</html>
